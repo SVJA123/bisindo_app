@@ -1,94 +1,144 @@
-import React, { useState, useRef } from "react";
-import { View, Text, Button, StyleSheet } from "react-native";
-import { CameraView, useCameraPermissions } from "expo-camera";
-import * as FileSystem from "expo-file-system";
-import * as ImageManipulator from "expo-image-manipulator";
+import { PaintStyle, Skia } from '@shopify/react-native-skia';
+import React, { useState, useEffect } from 'react';
+import { Button, NativeEventEmitter, NativeModules, Platform, StyleSheet, Text, View } from 'react-native';
+import { runOnJS, useDerivedValue } from 'react-native-reanimated';
+import { useSharedValue } from 'react-native-reanimated'
+// import { useSharedValue } from 'react-native-worklets-core';
+import {
+  Camera,
+  useCameraDevice,
+  useCameraDevices,
+  useCameraPermission,
+  useSkiaFrameProcessor,
+  VisionCameraProxy,
+  Frame,
+  useFrameProcessor
+} from 'react-native-vision-camera';
 
-const API_URL = "http://10.202.135.131:5000/predict"; // Replace with your backend URL
+const lines = [
+  [0, 1], [1, 2], [2, 3], [3, 4], [0, 5], [5, 6], [6, 7], [7, 8], [5, 9],
+  [9, 10], [10, 11], [11, 12], [9, 13], [13, 14], [14, 15], [15, 16],
+  [13, 17], [17, 18], [18, 19], [19, 20], [0, 17],
+];
+
+// const paint = Skia.Paint();
+// paint.setStyle(PaintStyle.Fill);
+// paint.setStrokeWidth(2);
+// paint.setColor(Skia.Color('red'));
+
+// const linePaint = Skia.Paint();
+// linePaint.setStyle(PaintStyle.Fill);
+// linePaint.setStrokeWidth(4);
+// linePaint.setColor(Skia.Color('lime'));
+
+const { HandLandmarks, TFLiteModule } = NativeModules;
+
+const handLandmarksEmitter = new NativeEventEmitter(HandLandmarks);
+
+// Initialize the frame processor plugin 'handLandmarks'
+const handLandMarkPlugin = VisionCameraProxy.initFrameProcessorPlugin(
+  'handLandmarks',
+  {},
+);
+
+// Create a worklet function 'handLandmarks' that will call the plugin function
+function handLandmarks(frame: Frame) {
+  'worklet';
+  if (handLandMarkPlugin == null) {
+    throw new Error('Failed to load Frame Processor Plugin!');
+  }
+  return handLandMarkPlugin.call(frame);
+}
 
 export default function CameraScreen() {
-  const [permission, requestPermission] = useCameraPermissions();
-  const cameraRef = useRef<CameraView>(null);
-  const [prediction, setPrediction] = useState<string | null>(null);
+  const landmarks = useSharedValue<Number[]>([]);
+  const [detectedLetter, setDetectedLetter] = useState<string>('');
+  type CameraType = 'front' | 'back';
+  const [cameraType, setCameraType] = useState<CameraType>('front');
+  const device = useCameraDevice(cameraType);
+  const { hasPermission, requestPermission } = useCameraPermission();
+  HandLandmarks.initModel();
 
-  const takePictureAndPredict = async () => {
-    if (cameraRef.current) {
-      // Step 1: Take a picture
-      const photo = await cameraRef.current.takePictureAsync({ base64: true });
-  
-      // Check if photo is defined
-      if (!photo) {
-        console.error("Failed to capture photo");
-        return;
-      }
-  
-      // Step 2: Compress the image (optional but recommended)
-      const compressedPhoto = await ImageManipulator.manipulateAsync(
-        photo.uri,
-        [{ resize: { width: 224, height: 224 } }], // Resize to model input size
-        { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
-      );
-  
+  useEffect(() => {
+    // Set up the event listener to listen for hand landmarks detection results
+    const subscription = handLandmarksEmitter.addListener(
+      'onHandLandmarksDetected',
+      event => {
+        runOnJS(() => {
+          landmarks.value = event.landmarks;
+          console.log("landmarks: ", landmarks.value);
+          console.log("onHandLandmarksDetected: ", event.landmarks);
+          console.log("landmarks size: ", event.landmarks.length);
 
-      console.log('photo')
+          TFLiteModule.runModel(event.landmarks)
+          .then((outputLetter: string) => {
+            setDetectedLetter(outputLetter);
+            console.log('Model output letter:', outputLetter);
+          })
+          .catch((error: unknown) => {
+            console.error('Error running model:', error);
+          });
 
-      // Step 3: Send the image to the backend API
-      const response = await FileSystem.uploadAsync(API_URL, compressedPhoto.uri, {
-        httpMethod: "POST",
-        uploadType: FileSystem.FileSystemUploadType.BINARY_CONTENT,
-        headers: {
-          "Content-Type": "image/jpeg",
-        },
-      });
+        })();
 
-      console.log('response')
-  
-      // Step 4: Parse the response
-      const result = JSON.parse(response.body);
-      setPrediction(result.prediction); // Update the prediction state
-    }
-  };
-
-  const testBackend = async () => {
-    try {
-      const response = await fetch(`${API_URL}/test`);
-      const result = await response.json();
-      console.log("Test Response:", result);
-    } catch (error) {
-      console.error("Test Error:", error);
-    }
-  };
-  
-  // Call this function somewhere in your app
-  testBackend();
-
-  if (!permission) {
-    return <View />; // Handle loading state
-  }
-
-  if (!permission.granted) {
-    return (
-      <View style={styles.container}>
-        <Text>No access to camera</Text>
-        <Button title="Request Permission" onPress={requestPermission} />
-      </View>
+        /*
+          This is where you can handle converting the data into commands
+          for further processing.
+        */
+      },
     );
+
+    // Clean up the event listener when the component is unmounted
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+    requestPermission().catch(error => console.log(error));
+  }, [requestPermission]);
+
+
+  const frameProcessor = useFrameProcessor(frame => {
+    'worklet';
+
+    // Process the frame using the 'handLandmarks' function
+    handLandmarks(frame);
+    
+
+    // Update the landmarks shared value within the worklet context
+    /* 
+      Paint landmarks on the screen.
+      Note: This paints landmarks from the previous frame since
+      frame processing is not synchronous.
+    */
+    
+  }, []);
+
+  if (!hasPermission) {
+    return <Text>No permission</Text>;
   }
+
+  if (device == null) {
+    return <Text>No device</Text>;
+  }
+
+  const pixelFormat = Platform.OS === 'ios' ? 'rgb' : 'yuv';
 
   return (
     <View style={styles.container}>
-      {/* Step 5: Render the CameraView */}
-      <CameraView
-        ref={cameraRef}
-        style={StyleSheet.absoluteFill}
-        facing="back"
+      <View style={styles.topContainer}>
+        <Text style={styles.letterText}>{detectedLetter}</Text>
+      </View>
+      <Camera
+        style={styles.camera}
+        device={device}
+        isActive={true}
+        frameProcessor={frameProcessor}
+        pixelFormat={pixelFormat}
+        outputOrientation="device"
       />
-
-      {/* Step 6: Add a button to capture and predict */}
-      <Button title="Capture and Predict" onPress={testBackend} />
-
-      {/* Step 7: Display the prediction */}
-      {prediction && <Text style={styles.predictionText}>Prediction: {prediction}</Text>}
+      <Button title="Switch Camera" onPress={() => setCameraType(cameraType === 'front' ? 'back' : 'front')} />
     </View>
   );
 }
@@ -96,11 +146,19 @@ export default function CameraScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    backgroundColor: 'white',
   },
-  predictionText: {
-    marginTop: 20,
-    fontSize: 18,
+  topContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  letterText: {
+    fontSize: 100, // Large font size for the detected letter
+    fontWeight: 'bold',
+    color: 'black',
+  },
+  camera: {
+    flex: 2,
   },
 });

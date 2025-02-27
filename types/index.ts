@@ -1,10 +1,10 @@
-// types/index.ts
-export interface HandLandmarks {
-    x: number;
-    y: number;
-    z: number;
-  }
-  
-  export interface HandResults {
-    multiHandLandmarks: HandLandmarks[][]; // Array of hands, each with an array of landmarks
-  }
+type Landmark = {
+  x: number;
+  y: number;
+  z: number;
+};
+
+type HandLandmarks = {
+  // hand: 'Right' | 'Left';
+  landmarks: Landmark[];
+};
