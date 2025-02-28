@@ -31,6 +31,11 @@ class TFLiteModule(reactContext: ReactApplicationContext) : ReactContextBaseJava
                 // Convert ReadableArray to FloatArray
                 val floatArray = convertReadableArrayToFloatArray(landmarks)
 
+                if (areAllLandmarksZero(floatArray)) {
+                    promise.resolve(" ") // Return an empty character if all landmarks are zero
+                    return@Thread
+                }
+
                 // Normalize and reshape landmarks into (42, 2, 1)
                 val reshapedInput = normalizeAndReshapeLandmarks(floatArray)
 
@@ -66,6 +71,10 @@ class TFLiteModule(reactContext: ReactApplicationContext) : ReactContextBaseJava
                 promise.reject("MODEL_ERROR", e.message)
             }
         }.start()
+    }
+
+    private fun areAllLandmarksZero(landmarks: FloatArray): Boolean {
+        return landmarks.all { it == 0f }
     }
     
     private fun convertReadableArrayToFloatArray(landmarks: ReadableArray): FloatArray {

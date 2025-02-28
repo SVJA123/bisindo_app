@@ -1,5 +1,8 @@
 package com.anonymous.bisindo.handlandmarksframeprocessor
 
+import android.graphics.Bitmap
+import android.graphics.Matrix
+
 import com.google.mediapipe.framework.image.BitmapImageBuilder
 import com.google.mediapipe.framework.image.MPImage
 import com.mrousavy.camera.frameprocessors.Frame
@@ -19,13 +22,28 @@ class HandLandmarksFrameProcessorPlugin(proxy: VisionCameraProxy, options: Map<S
 
     try {
       // Convert the frame to an MPImage
-      val mpImage: MPImage = BitmapImageBuilder(frame.imageProxy.toBitmap()).build()
+      // val mpImage: MPImage = BitmapImageBuilder(frame.imageProxy.toBitmap()).build()
+      
+      // Get the timestamp from the frame
+      val timestamp = frame.timestamp ?: System.currentTimeMillis()
 
-       // Get the timestamp from the frame
-       val timestamp = frame.timestamp ?: System.currentTimeMillis()
+      val orientation = arguments?.get("orientation") as? String ?: "portrait"
 
-       // Call detectAsync with MPImage and timestamp
-       HandLandmarkerHolder.handLandmarker?.detectAsync(mpImage, timestamp)
+      val bitmap = frame.imageProxy.toBitmap()
+
+      // Rotate the Bitmap based on the frame orientation
+      val rotatedBitmap = when (orientation) {
+        "landscape-right" -> rotateBitmap(bitmap, 90f)
+        "portrait-upside-down" -> rotateBitmap(bitmap, 180f)
+        "landscape-left" -> rotateBitmap(bitmap, 270f)
+        else -> bitmap // No rotation needed
+      }
+
+      // Convert the rotated Bitmap to an MPImage
+      val mpImage: MPImage = BitmapImageBuilder(rotatedBitmap).build()
+
+      // Call detectAsync with MPImage and timestamp
+      HandLandmarkerHolder.handLandmarker?.detectAsync(mpImage, timestamp)
       
       Log.d("HandLandmarksFrameProcessor", "Frame processed successfully") // Add logging
       return "Frame processed successfully"
@@ -35,5 +53,11 @@ class HandLandmarksFrameProcessorPlugin(proxy: VisionCameraProxy, options: Map<S
       return "Error processing frame: ${e.message}"
     }
 
+  }
+
+  private fun rotateBitmap(source: Bitmap, angle: Float): Bitmap {
+    val matrix = Matrix()
+    matrix.postRotate(angle)
+    return Bitmap.createBitmap(source, 0, 0, source.width, source.height, matrix, true)
   }
 }

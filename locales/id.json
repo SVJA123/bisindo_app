@@ -1,0 +1,60 @@
+{
+    "languageCodeSpeech": "id-ID", 
+    "languageCodeTTS": "id",
+    "translate": "Terjemahkan",
+    "camera": "Kamera",
+    "clearWord": "Hapus Kata",
+    "clearSentence": "Hapus Kalimat",
+    "deleteLetter": "Hapus Huruf",
+    "switchCamera": "Ganti Kamera",
+    "tts": "Suara",
+    "quiz": "Kuis",
+    "alphabet": "Alfabet",
+    "placeholder": "Masukkan teks",
+    "missingText": "Silakan masukkan teks",
+
+    "quizCategories": "Kategori Kuis",
+    "categories": {
+      "animals": {
+        "name": "Hewan",
+        "items": ["anjing", "kucing", "burung", "sapi", "kuda", "monyet", "ular", "ikan", "gajah", "singa", "harimau", "kambing", "kelinci", "serigala", "beruang", "ayam", "bebek", "kadal"]
+      },
+      "places": {
+        "name": "Tempat",
+        "items": ["rumah", "sekolah", "kantor", "taman", "pasar", "mall", "stasiun", "bandara", "hotel", "restoran", "kamar", "toilet", "kamar mandi", "dapur", "ruang tamu", "garasi"]
+      },
+      "greetings": {
+        "name": "Sapaan",
+        "items": ["halo", "selamat pagi", "selamat siang", "selamat sore", "selamat malam", "terima kasih", "sama-sama", "maaf", "tolong", "silakan", "ya", "tidak", "mungkin", "saya", "kamu", "dia"]
+      },
+      "numbers": {
+        "name": "Angka",
+        "items": ["satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh"]
+      },
+      "colors": {
+        "name": "Warna",
+        "items": ["merah", "biru", "kuning", "hijau", "ungu", "jingga", "hitam", "putih", "abu-abu", "coklat"]
+      },
+      "test": {
+        "name": "Tes",
+        "items": ["a s", "tes", "test"]
+      }
+    },
+
+    "information": "Informasi",
+    "welcome": "Selamat Datang di Aplikasi Penerjemah Ejaan Jari Bisindo",
+    "aboutApp": "Tentang Aplikasi",
+    "aboutAppDescription": "Aplikasi ini dirancang untuk membantu Anda melatih, mempelajari, dan mempraktikkan ejaan jari Bisindo (Bahasa Isyarat Indonesia). Baik Anda pemula atau ingin meningkatkan keterampilan, aplikasi ini menyediakan alat untuk membuat pembelajaran menjadi menyenangkan dan interaktif.",
+    "features": "Fitur",
+    "fingerspellingTranslation": "1. Penerjemah Ejaan Jari",
+    "fingerspellingTranslationDescription": "Gunakan kamera perangkat Anda untuk menerjemahkan gerakan tangan menjadi huruf Bisindo secara real-time.",
+    "alphabetSection": "2. Bagian Alfabet",
+    "alphabetSectionDescription": "Jelajahi alfabet Bisindo lengkap dengan ilustrasi dan contoh detail untuk setiap huruf. Bagian ini cocok untuk pemula yang ingin mempelajari dasar-dasar.",
+    "quizSection": "3. Bagian Kuis",
+    "quizSectionDescription": "Uji pengetahuan Anda dengan kuis interaktif. Aplikasi akan menampilkan kata-kata, dan Anda dapat berlatih mengejanya. Dapatkan umpan balik instan untuk meningkatkan keterampilan Anda!",
+    "howToUse": "Cara Menggunakan",
+    "howToUseDescription": "- Buka kamera dan posisikan tangan Anda di depan perangkat.\n- Aplikasi akan mendeteksi gerakan tangan Anda dan menampilkan huruf Bisindo yang sesuai.\n- Gunakan bagian Alfabet untuk mempelajari huruf baru dan bagian Kuis untuk menguji pengetahuan Anda.",
+    "contactUs": "Hubungi Kami",
+    "contactUsDescription": "Ada pertanyaan atau masukan? Jangan ragu untuk menghubungi kami di {email}.",
+    "email": "support@bisindoapp.com"
+  }

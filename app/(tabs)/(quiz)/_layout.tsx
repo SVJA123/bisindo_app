@@ -3,17 +3,15 @@ import { ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { useColorScheme } from '@/components/useColorScheme';
 import { DarkTheme, DefaultTheme } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
 
-export default function TranslationLayout() {
+export default function QuizLayout() {
   const colorScheme = useColorScheme();
-  const { t } = useTranslation();
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="camera" options={{ title: t('camera') }} />
+        <Stack.Screen name="category" options={{ title: 'Category' }} />
       </Stack>
     </ThemeProvider>
   );

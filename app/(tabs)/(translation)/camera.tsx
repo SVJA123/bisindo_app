@@ -1,98 +1,147 @@
-import { PaintStyle, Skia } from '@shopify/react-native-skia';
-import React, { useState, useEffect } from 'react';
-import { Button, NativeEventEmitter, NativeModules, Platform, StyleSheet, Text, View } from 'react-native';
-import { runOnJS, useDerivedValue } from 'react-native-reanimated';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Dimensions, NativeEventEmitter, NativeModules, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { runOnJS } from 'react-native-reanimated';
 import { useSharedValue } from 'react-native-reanimated'
-// import { useSharedValue } from 'react-native-worklets-core';
+import { FontAwesome6 } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
+import * as Speech from 'expo-speech';
+
 import {
   Camera,
   useCameraDevice,
-  useCameraDevices,
   useCameraPermission,
-  useSkiaFrameProcessor,
+  runAtTargetFps,
   VisionCameraProxy,
   Frame,
   useFrameProcessor
 } from 'react-native-vision-camera';
 
-const lines = [
-  [0, 1], [1, 2], [2, 3], [3, 4], [0, 5], [5, 6], [6, 7], [7, 8], [5, 9],
-  [9, 10], [10, 11], [11, 12], [9, 13], [13, 14], [14, 15], [15, 16],
-  [13, 17], [17, 18], [18, 19], [19, 20], [0, 17],
-];
-
-// const paint = Skia.Paint();
-// paint.setStyle(PaintStyle.Fill);
-// paint.setStrokeWidth(2);
-// paint.setColor(Skia.Color('red'));
-
-// const linePaint = Skia.Paint();
-// linePaint.setStyle(PaintStyle.Fill);
-// linePaint.setStrokeWidth(4);
-// linePaint.setColor(Skia.Color('lime'));
 
 const { HandLandmarks, TFLiteModule } = NativeModules;
 
-const handLandmarksEmitter = new NativeEventEmitter(HandLandmarks);
+const handLandmarksEmitter = new NativeEventEmitter();
 
-// Initialize the frame processor plugin 'handLandmarks'
+// initialize frame processor plugin 'handLandmarks'
 const handLandMarkPlugin = VisionCameraProxy.initFrameProcessorPlugin(
   'handLandmarks',
   {},
 );
 
-// Create a worklet function 'handLandmarks' that will call the plugin function
+// call the plugin function
 function handLandmarks(frame: Frame) {
   'worklet';
   if (handLandMarkPlugin == null) {
     throw new Error('Failed to load Frame Processor Plugin!');
   }
-  return handLandMarkPlugin.call(frame);
+  const args = { 'orientation': String(frame.orientation || "portrait") };
+  return handLandMarkPlugin.call(frame, args);
 }
 
 export default function CameraScreen() {
+  const { t } = useTranslation();
   const landmarks = useSharedValue<Number[]>([]);
   const [detectedLetter, setDetectedLetter] = useState<string>('');
+  const [currentWord, setCurrentWord] = useState<string>('');
+  const [sentences, setSentences] = useState<string[]>([]);
+  const [lastDetectedLetter, setLastDetectedLetter] = useState<string>('');
+  const [consecutiveLetterCount, setConsecutiveLetterCount] = useState<number>(0);
+  const [consecutiveSpaceCount, setConsecutiveSpaceCount] = useState<number>(0);
+  const [didModelRun, setDidModelRun] = useState<number>(0);
+  const minConsecutiveCount = 7; // minimum number of frames to consider a letter (1.5s)
   type CameraType = 'front' | 'back';
   const [cameraType, setCameraType] = useState<CameraType>('front');
   const device = useCameraDevice(cameraType);
   const { hasPermission, requestPermission } = useCameraPermission();
   HandLandmarks.initModel();
 
+  const screenWidth = Dimensions.get('window').width;
+  const iconSize = screenWidth / 16; 
+  const fontSize = screenWidth / 36; 
+
+  const handleSpeak = () => {
+      console.log("sentence", sentences.join());
+      if (sentences.join().trim()) {
+        const languageCodeTTS = t('languageCodeTTS'); 
+    
+        Speech.speak(sentences.join(), {
+          language: languageCodeTTS, 
+          pitch: 1.0,
+          rate: 1.0,
+        });
+      } 
+      else {
+        alert(t('missingText'));
+      }
+    };
+
   useEffect(() => {
-    // Set up the event listener to listen for hand landmarks detection results
+    // set up event listener to listen for hand landmarks detection results
     const subscription = handLandmarksEmitter.addListener(
       'onHandLandmarksDetected',
       event => {
         runOnJS(() => {
           landmarks.value = event.landmarks;
-          console.log("landmarks: ", landmarks.value);
-          console.log("onHandLandmarksDetected: ", event.landmarks);
-          console.log("landmarks size: ", event.landmarks.length);
+          // console.log("landmarks: ", landmarks.value);
+          // console.log("onHandLandmarksDetected: ", event.landmarks);
+          // console.log("landmarks size: ", event.landmarks.length);
 
           TFLiteModule.runModel(event.landmarks)
           .then((outputLetter: string) => {
             setDetectedLetter(outputLetter);
-            console.log('Model output letter:', outputLetter);
+            setDidModelRun(Math.random());
+            // console.log('Output letter:', outputLetter);
           })
           .catch((error: unknown) => {
             console.error('Error running model:', error);
           });
 
         })();
-
-        /*
-          This is where you can handle converting the data into commands
-          for further processing.
-        */
       },
-    );
 
-    // Clean up the event listener when the component is unmounted
+    );
+    
     return () => {
       subscription.remove();
     };
+
+    
   }, []);
+
+  useEffect(() => {
+    // Update the current word and sentences
+    // console.log("detectedLetter: ", detectedLetter);
+    // console.log("word: ", currentWord);
+    // console.log("sentences: ", sentences);
+    if (detectedLetter === ' ') {
+      if (detectedLetter === lastDetectedLetter) {
+        setConsecutiveSpaceCount(consecutiveSpaceCount => consecutiveSpaceCount + 1);
+        if (consecutiveSpaceCount >= minConsecutiveCount && currentWord.length > 0) {
+          setSentences(prev => [...prev, currentWord]);
+          setCurrentWord('');
+          setConsecutiveSpaceCount(0); 
+        }
+      } 
+      else {
+        setConsecutiveSpaceCount(1); 
+      }
+    } 
+    else {
+      if (detectedLetter === lastDetectedLetter) {
+        setConsecutiveLetterCount(consecutiveLetterCount => consecutiveLetterCount + 1);
+        if (consecutiveLetterCount >= minConsecutiveCount) {
+          setCurrentWord(word => word + detectedLetter);
+          setConsecutiveLetterCount(0);
+        }
+      } 
+      else {
+        setConsecutiveLetterCount(1); 
+      }
+    }
+
+    setLastDetectedLetter(detectedLetter);
+  }, [didModelRun]);
+
+  
 
   useEffect(() => {
     requestPermission().catch(error => console.log(error));
@@ -102,16 +151,13 @@ export default function CameraScreen() {
   const frameProcessor = useFrameProcessor(frame => {
     'worklet';
 
-    // Process the frame using the 'handLandmarks' function
-    handLandmarks(frame);
-    
+    // console.log("frame orientation: ", frame.orientation);
 
-    // Update the landmarks shared value within the worklet context
-    /* 
-      Paint landmarks on the screen.
-      Note: This paints landmarks from the previous frame since
-      frame processing is not synchronous.
-    */
+    // so that the result is not too flickery
+    runAtTargetFps(10, () => {
+      handLandmarks(frame)
+    })
+    
     
   }, []);
 
@@ -129,6 +175,8 @@ export default function CameraScreen() {
     <View style={styles.container}>
       <View style={styles.topContainer}>
         <Text style={styles.letterText}>{detectedLetter}</Text>
+        <Text style={styles.wordText}>{currentWord}</Text>
+        <Text style={styles.sentenceText}>{sentences.join(' ')}</Text>
       </View>
       <Camera
         style={styles.camera}
@@ -138,7 +186,24 @@ export default function CameraScreen() {
         pixelFormat={pixelFormat}
         outputOrientation="device"
       />
-      <Button title="Switch Camera" onPress={() => setCameraType(cameraType === 'front' ? 'back' : 'front')} />
+      <View style={styles.iconButtonContainer}>
+        <TouchableOpacity onPress={() => setCurrentWord('')} style={styles.iconButton}>
+          <FontAwesome6 name="eraser" size={iconSize} color="white" />
+          <Text style={[styles.iconButtonText, { fontSize }]}>{t('clearWord')}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setSentences([])} style={styles.iconButton}>
+          <FontAwesome6 name="trash" size={iconSize} color="white" />
+          <Text style={[styles.iconButtonText, { fontSize }]}>{t('clearSentence')}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={handleSpeak} style={styles.iconButton}>
+          <FontAwesome6 name="volume-up" size={iconSize} color="white" />
+          <Text style={[styles.iconButtonText, { fontSize }]}>{t('tts')}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setCameraType(cameraType === 'front' ? 'back' : 'front')} style={styles.iconButton}>
+          <FontAwesome6 name="repeat" size={iconSize} color="white" />
+          <Text style={[styles.iconButtonText, { fontSize }]}>{t('switchCamera')}</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -154,11 +219,37 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   letterText: {
-    fontSize: 100, // Large font size for the detected letter
+    fontSize: 40, 
+    fontWeight: 'bold',
+    color: 'black',
+  },
+  wordText: {
+    fontSize: 30, 
+    fontWeight: 'bold',
+    color: 'black',
+  },
+  sentenceText: {
+    fontSize: 20, 
     fontWeight: 'bold',
     color: 'black',
   },
   camera: {
     flex: 2,
+  },
+  iconButtonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    padding: 10,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  iconButton: {
+    alignItems: 'center',
+    marginHorizontal: 10,
+  },
+  iconButtonText: {
+    color: 'white',
+    fontSize: 10,
+    textAlign: 'center',
   },
 });

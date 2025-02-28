@@ -1,0 +1,61 @@
+{
+    "languageCodeSpeech": "en-US", 
+    "languageCodeTTS": "en",
+    "translate": "Translate",
+    "camera": "Camera",
+    "clearWord": "Clear Word",
+    "clearSentence": "Clear Sentence",
+    "deleteLetter": "Delete Letter",
+    "switchCamera": "Switch Camera",
+    "tts": "Voice",
+    "quiz": "Quiz",
+    "alphabet": "Alphabet",
+    "placeholder": "Enter text",
+    "missingText": "Please enter some text",
+
+    "quizCategories": "Quiz Categories",
+    "categories": {
+      "animals": {
+        "name": "Animals",
+        "items": ["dog", "cat", "bird", "cow", "horse", "monkey", "snake", "fish", "elephant", "lion", "tiger", "goat", "rabbit", "wolf", "bear", "chicken", "duck", "lizard"]
+      },
+      "places": {
+        "name": "Places",
+        "items": ["house", "school", "office", "park", "market", "mall", "station", "airport", "hotel", "restaurant", "room", "toilet", "bathroom", "kitchen", "living room", "garage"]
+      },
+      "greetings": {
+        "name": "Greetings",
+        "items": ["hello", "good morning", "good afternoon", "good evening", "good night", "thank you", "you're welcome", "sorry", "please", "excuse me", "yes", "no", "maybe", "me", "you", "him/her"]
+      },
+      "numbers": {
+        "name": "Numbers",
+        "items": ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"]
+      },
+      "colors": {
+        "name": "Colors",
+        "items": ["red", "blue", "yellow", "green", "purple", "orange", "black", "white", "gray", "brown"]
+      },
+      "test": {
+        "name": "Test",
+        "items": ["a s", "test", "test"]
+      }
+    },
+    	
+    "information": "Information",
+    "welcome": "Welcome to Bisindo Fingerspelling Translator",
+    "aboutApp": "About the App",
+    "aboutAppDescription": "This app is designed to help you train, learn and practice Bisindo (Indonesian Sign Language) fingerspelling. Whether you're a beginner or looking to improve your skills, this app provides tools to make learning fun and interactive.",
+    "features": "Features",
+    "fingerspellingTranslation": "1. Fingerspelling Translation",
+    "fingerspellingTranslationDescription": "Use your device's camera to translate hand gestures into Bisindo letters in real-time.",
+    "alphabetSection": "2. Alphabet Section",
+    "alphabetSectionDescription": "Explore the complete Bisindo alphabet with detailed illustrations and examples for each letter. This section is perfect for beginners who want to learn the basics.",
+    "quizSection": "3. Quiz Section",
+    "quizSectionDescription": "Test your knowledge with interactive quizzes. The app will show you words, and you can practice signing it. Get instant feedback to improve your skills!",
+    "howToUse": "How to Use",
+    "howToUseDescription": "- Open the camera and position your hand in front of the device.\n- The app will detect your hand gestures and display the corresponding Bisindo letter.\n- Use the Alphabet section to learn new letters and the Quiz section to test your knowledge.",
+    "contactUs": "Contact Us",
+    "contactUsDescription": "Have questions or feedback? Feel free to reach out to us at {email}.",
+    "email": "support@bisindoapp.com"
+
+  }
