@@ -196,7 +196,7 @@ export default function CameraScreen() {
           <Text style={[styles.iconButtonText, { fontSize }]}>{t('clearSentence')}</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={handleSpeak} style={styles.iconButton}>
-          <FontAwesome6 name="volume-up" size={iconSize} color="white" />
+          <FontAwesome6 name="volume-high" size={iconSize} color="white" />
           <Text style={[styles.iconButtonText, { fontSize }]}>{t('tts')}</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => setCameraType(cameraType === 'front' ? 'back' : 'front')} style={styles.iconButton}>

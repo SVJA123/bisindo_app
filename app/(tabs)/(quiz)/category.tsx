@@ -31,7 +31,7 @@ const updateHighScore = async (categoryID: string, score: number): Promise<void>
 }
 
 const { HandLandmarks, TFLiteModule } = NativeModules;
-const handLandmarksEmitter = new NativeEventEmitter(HandLandmarks);
+const handLandmarksEmitter = new NativeEventEmitter();
 
 // Initialize the frame processor plugin 'handLandmarks'
 const handLandMarkPlugin = VisionCameraProxy.initFrameProcessorPlugin(

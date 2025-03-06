@@ -9,6 +9,8 @@ import com.facebook.react.bridge.ReadableType
 import org.tensorflow.lite.Interpreter
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import kotlin.math.acos
+import kotlin.math.sqrt
 
 class TFLiteModule(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
 
@@ -16,7 +18,7 @@ class TFLiteModule(reactContext: ReactApplicationContext) : ReactContextBaseJava
 
     init {
         // Load your TFLite model
-        val modelFile = loadModelFile("hand_gesture_model.tflite")
+        val modelFile = loadModelFile("hand_gesture_hybrid_j.tflite")
         interpreter = Interpreter(modelFile)
     }
 
@@ -32,40 +34,52 @@ class TFLiteModule(reactContext: ReactApplicationContext) : ReactContextBaseJava
                 val floatArray = convertReadableArrayToFloatArray(landmarks)
 
                 if (areAllLandmarksZero(floatArray)) {
-                    promise.resolve(" ") // Return an empty character if all landmarks are zero
+                    promise.resolve(" ")
                     return@Thread
                 }
 
-                // Normalize and reshape landmarks into (42, 2, 1)
-                val reshapedInput = normalizeAndReshapeLandmarks(floatArray)
+                val reshapedLandmarks = normalizeAndReshapeLandmarks(floatArray)
 
-                // Prepare input buffer
-                val inputBuffer = ByteBuffer.allocateDirect(42 * 2 * 1 * 4) // 4 bytes per float
-                inputBuffer.order(ByteOrder.nativeOrder())
+                val angles = calculateAdjacentAngles(floatArray)
 
-                // Copy the 3D array into the ByteBuffer
+                // prepare input buffers for landmarks and angles
+                val landmarkBuffer = ByteBuffer.allocateDirect(42 * 2 * 1 * 4) // 4 bytes per float
+                landmarkBuffer.order(ByteOrder.nativeOrder())
+
+                val angleBuffer = ByteBuffer.allocateDirect(8 * 4) // 8 angles * 4 bytes per float
+                angleBuffer.order(ByteOrder.nativeOrder())
+
+                // Copy the 3D array into the ByteBuffer for landmarks
                 for (i in 0 until 42) {
                     for (j in 0 until 2) {
-                        inputBuffer.putFloat(reshapedInput[i][j][0])
+                        landmarkBuffer.putFloat(reshapedLandmarks[i][j][0])
                     }
                 }
 
-                // Run the model
-                val output = Array(1) { FloatArray(26) } // Output shape: [1, 26]
-                interpreter?.run(inputBuffer, output)
+                // Copy the angles into the ByteBuffer
+                for (angle in angles) {
+                    angleBuffer.putFloat(angle)
+                }
 
-                // Find the index of the highest probability (argmax)
+                // angle first
+                val inputs = arrayOf(angleBuffer, landmarkBuffer)
+
+                // run the model
+                val output = Array(1) { FloatArray(26) } // Output shape: [1, 26]
+                interpreter?.runForMultipleInputsOutputs(inputs, mapOf(0 to output))
+
+                // find the index of the highest probability (argmax)
                 val outputArray = output[0]
                 val maxIndex = outputArray.indices.maxByOrNull { outputArray[it] } ?: -1
 
-                // Convert the index to a corresponding letter (A-Z)
+                // convert the index to a corresponding letter (A-Z)
                 val outputLetter = if (maxIndex in 0..25) {
                     ('A'.code + maxIndex).toChar().toString()
                 } else {
                     "Unknown"
                 }
 
-                // Resolve the promise with the output letter
+                // resolve the promise with the output letter
                 promise.resolve(outputLetter)
             } catch (e: Exception) {
                 promise.reject("MODEL_ERROR", e.message)
@@ -76,7 +90,7 @@ class TFLiteModule(reactContext: ReactApplicationContext) : ReactContextBaseJava
     private fun areAllLandmarksZero(landmarks: FloatArray): Boolean {
         return landmarks.all { it == 0f }
     }
-    
+
     private fun convertReadableArrayToFloatArray(landmarks: ReadableArray): FloatArray {
         val floatArray = FloatArray(landmarks.size())
         for (i in 0 until landmarks.size()) {
@@ -129,25 +143,66 @@ class TFLiteModule(reactContext: ReactApplicationContext) : ReactContextBaseJava
         return reshapedInput
     }
 
-    private fun adjustLandmarksForOrientation(landmarks: FloatArray, frameOrientation: String): FloatArray {
-        return when (frameOrientation) {
-            "landscape-right" -> {
-                // Rotate landmarks 90° clockwise
-                landmarks.mapIndexed { index, value ->
-                    if (index % 2 == 0) 1f - value else value // Swap x and y, invert x
-                }.toFloatArray()
-            }
-            "landscape-left" -> {
-                // Rotate landmarks 90° counter-clockwise
-                landmarks.mapIndexed { index, value ->
-                    if (index % 2 == 0) value else 1f - value // Swap x and y, invert y
-                }.toFloatArray()
-            }
-            else -> {
-                // No adjustment needed for portrait or unknown orientation
-                landmarks
+    private fun calculateAdjacentAngles(landmarks: FloatArray): FloatArray {
+        // Split landmarks into two hands
+        val hand1 = landmarks.take(42).chunked(2) // First hand (landmarks 0 to 20)
+        val hand2 = landmarks.drop(42).chunked(2) // Second hand (landmarks 21 to 41)
+
+        // Calculate angles for both hands
+        val anglesHand1 = calculateAdjacentAnglesForHand(hand1)
+        val anglesHand2 = calculateAdjacentAnglesForHand(hand2)
+
+        // Combine angles from both hands
+        return anglesHand1 + anglesHand2
+    }
+
+    private fun calculateAdjacentAnglesForHand(handLandmarks: List<List<Float>>): FloatArray {
+        // Define keypoints
+        val wrist = handLandmarks[0]
+        val thumbTip = handLandmarks[4]
+        val indexTip = handLandmarks[8]
+        val middleTip = handLandmarks[12]
+        val ringTip = handLandmarks[16]
+        val pinkyTip = handLandmarks[20]
+
+        // Check for invalid landmarks
+        if (wrist.all { it == 0f } || thumbTip.all { it == 0f } || indexTip.all { it == 0f } ||
+            middleTip.all { it == 0f } || ringTip.all { it == 0f } || pinkyTip.all { it == 0f }
+        ) {
+            return FloatArray(4) { 0f } // Return zeros if any landmark is missing
+        }
+
+        // Compute vectors from wrist to finger tips
+        val vectors = listOf(
+            thumbTip.zip(wrist) { a, b -> a - b },
+            indexTip.zip(wrist) { a, b -> a - b },
+            middleTip.zip(wrist) { a, b -> a - b },
+            ringTip.zip(wrist) { a, b -> a - b },
+            pinkyTip.zip(wrist) { a, b -> a - b }
+        )
+
+        // Calculate angles between adjacent vectors
+        val angles = mutableListOf<Float>()
+        for (i in 0 until vectors.size - 1) {
+            val v1 = vectors[i]
+            val v2 = vectors[i + 1]
+
+            // Compute the dot product and magnitudes
+            val dotProduct = v1.zip(v2) { a, b -> a * b }.sum()
+            val norm1 = sqrt(v1.map { it * it }.sum())
+            val norm2 = sqrt(v2.map { it * it }.sum())
+
+            // Check for zero magnitude to avoid division by zero
+            if (norm1 == 0f || norm2 == 0f) {
+                angles.add(0f)
+            } else {
+                val cosTheta = (dotProduct / (norm1 * norm2)).coerceIn(-1f, 1f)
+                val angle = acos(cosTheta) // Angle in radians
+                angles.add(Math.toDegrees(angle.toDouble()).toFloat() / 180f) // Normalized to [0, 1]
             }
         }
+
+        return angles.toFloatArray()
     }
 
     private fun loadModelFile(modelName: String): ByteBuffer {
