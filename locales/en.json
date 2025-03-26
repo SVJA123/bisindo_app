@@ -6,15 +6,41 @@
     "clearWord": "Clear Word",
     "clearSentence": "Clear Sentence",
     "deleteLetter": "Delete Letter",
+    "deleteWord": "Delete Word",
     "switchCamera": "Switch Camera",
     "tts": "Voice",
     "quiz": "Quiz",
     "alphabet": "Alphabet",
     "placeholder": "Enter text",
     "missingText": "Please enter some text",
+    "seconds": "seconds",
+
+    "help": "Help Page",
+    "helpDescription": "This function helps you translate Bisindo fingerspelling in real time. Here are some tips on how to use the camera:",
+    "helpStep1": "Point your camera at your hand to detect the fingerspelling.",
+    "helpStep2": "The detected letter will be displayed on the screen.",
+    "helpStep3": "The detected letter will be added to the current word after one second of the letter being detected.",
+    "helpStep4": "The detected word will be added to the current sentence after one second of no letter being detected.",
+    "helpStep5": "You can clear the current word or sentence using the buttons provided.",
+    "helpStep6": "Use the switch camera button to toggle between the front and back cameras.",
+    "helpStep7": "Press the speak button to hear the detected sentence.",
+    "helpStep8": "Use the slider to adjust the speed of letters being detected. For example, if you set the speed to 0.5, the app will add letters to the word and words to the sentence every 0.5 seconds.",
+
+    "quizHelpDescription": "This function helps you practice Bisindo fingerspelling in real time. Here are some tips on how to use the quiz function:",
+    "quizHelpStep1": "Point your camera at your hand to detect the fingerspelling.",
+    "quizHelpStep2": "The required word will be displayed on the screen.",
+    "quizHelpStep3": "The detected letter will be approved as part of the required word after 0.5 seconds of the letter being detected.",
+    "quizHelpStep4": "The approved letter will be displayed green.",
+    "quizHelpStep5": "Complete the word by spelling the rest of the letters.",
+    "quizHelpStep6": "Use the switch camera button to toggle between the front and back cameras.",
+    "quizHelpStep7": "Use the slider to adjust the speed of letters being detected. For example, if you set the speed to 0.5, the app will approve letters to the word every 0.5 seconds.",
 
     "quizCategories": "Quiz Categories",
     "categories": {
+      "letters": {
+        "name": "Letters",
+        "items": ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
+      },
       "animals": {
         "name": "Animals",
         "items": ["dog", "cat", "bird", "cow", "horse", "monkey", "snake", "fish", "elephant", "lion", "tiger", "goat", "rabbit", "wolf", "bear", "chicken", "duck", "lizard"]

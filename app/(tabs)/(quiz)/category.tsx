@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, Dimensions, NativeEventEmitter, NativeModules, Platform, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useNavigation } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { runOnJS } from 'react-native-reanimated';
 import { useSharedValue } from 'react-native-reanimated';
 import { FontAwesome6 } from '@expo/vector-icons';
@@ -14,6 +15,7 @@ import {
   Frame,
   useFrameProcessor
 } from 'react-native-vision-camera';
+import Slider from '@react-native-community/slider';
 
 const getScoreKey = (categoryID: string): string => {
   return `score-${categoryID}`;
@@ -33,13 +35,15 @@ const updateHighScore = async (categoryID: string, score: number): Promise<void>
 const { HandLandmarks, TFLiteModule } = NativeModules;
 const handLandmarksEmitter = new NativeEventEmitter();
 
-// Initialize the frame processor plugin 'handLandmarks'
+// initialize frame processor plugin
 const handLandMarkPlugin = VisionCameraProxy.initFrameProcessorPlugin(
   'handLandmarks',
   {},
 );
 
-// Create a worklet function 'handLandmarks' that will call the plugin function
+const screenWidth = Dimensions.get('window').width;
+
+// call the plugin function
 function handLandmarks(frame: Frame) {
   'worklet';
   if (handLandMarkPlugin == null) {
@@ -53,7 +57,7 @@ export default function CategoryScreen() {
   const { categoryId, categoryName, items } = useLocalSearchParams();
   const categoryIdString = categoryId.toString();
   const itemsArray = JSON.parse(items as string);
-
+  const { t } = useTranslation();
   const landmarks = useSharedValue<Number[]>([]);
   const [detectedLetter, setDetectedLetter] = useState<string>('');
   const [lastDetectedLetter, setLastDetectedLetter] = useState<string>('');
@@ -61,14 +65,17 @@ export default function CategoryScreen() {
   const [didModelRun, setDidModelRun] = useState<number>(0);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [correctLetters, setCorrectLetters] = useState<string[]>([]);
-  const minConsecutiveCount = 5; // Minimum number of frames to consider a letter
+  const [seconds, setSeconds] = useState<number>(0.5);
+  const [minConsecutiveCount, setMinConsecutiveCount] = useState<number>(5); // minimum number of frames to consider a letter (1.5s)
   type CameraType = 'front' | 'back';
   const [cameraType, setCameraType] = useState<CameraType>('front');
   const device = useCameraDevice(cameraType);
   const { hasPermission, requestPermission } = useCameraPermission();
-
   const [highScore, setHighScore] = useState<number>(0);
   const [score, setScore] = useState<number>(0);
+  const navigation = useNavigation();
+
+  HandLandmarks.initModel();
 
   useEffect(() => {
     loadHighScore(categoryIdString).then((score) => {
@@ -76,15 +83,7 @@ export default function CategoryScreen() {
     });
   }, [categoryIdString]);
 
-  HandLandmarks.initModel();
-
-  const screenWidth = Dimensions.get('window').width;
-  const iconSize = screenWidth / 16;
-  const fontSize = screenWidth / 36;
-  const navigation = useNavigation();
-
   useEffect(() => {
-    // Set up the event listener to listen for hand landmarks detection results
     const subscription = handLandmarksEmitter.addListener(
       'onHandLandmarksDetected',
       event => {
@@ -103,7 +102,6 @@ export default function CategoryScreen() {
       },
     );
 
-    // Clean up the event listener when the component is unmounted
     return () => {
       subscription.remove();
     };
@@ -121,8 +119,13 @@ export default function CategoryScreen() {
   }, [score]);
 
   useEffect(() => {
+      setMinConsecutiveCount(Math.round(seconds * 10));
+    }
+  , [seconds]);
+
+  useEffect(() => {
     if (currentIndex >= itemsArray.length) {
-      // Handle the end of the quiz
+      // end of quiz
       return;
     }
 
@@ -142,10 +145,10 @@ export default function CategoryScreen() {
             setCorrectLetters([]);
           }
         }
-        setConsecutiveLetterCount(0); // Reset counter
+        setConsecutiveLetterCount(0); 
       }
     } else {
-      setConsecutiveLetterCount(1); // Reset and start for new letter
+      setConsecutiveLetterCount(1);
     }
     setLastDetectedLetter(detectedLetter);
   }, [didModelRun]);
@@ -197,7 +200,15 @@ export default function CategoryScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.topContainer}>
+      <Camera
+        style={styles.camera}
+        device={device}
+        isActive={true}
+        frameProcessor={frameProcessor}
+        pixelFormat={pixelFormat}
+        outputOrientation="device"
+      />
+      <View style={styles.overlay}>
         <View style={styles.scoreContainer}>
           <Text style={styles.subtitle}>Score: {score}%</Text>
           <Text style={styles.subtitle}>High Score: {highScore}%</Text>
@@ -211,27 +222,36 @@ export default function CategoryScreen() {
                 correctLetters[index] === letter.toUpperCase() && styles.correctLetter,
               ]}
             >
-              {letter}
+              {letter.toUpperCase()}
             </Text>
           ))}
         </View>
+        <View style={styles.detectedLetterContainer}>
+          <Text style={styles.detectedLetter}>{detectedLetter}</Text>
+        </View>
+        <View style={styles.sliderContainer}>
+          <Text style={styles.sliderLabel}>{t('seconds')}: {seconds.toFixed(1)}</Text>
+          <Slider
+            style={styles.slider}
+            minimumValue={0.5}
+            maximumValue={3.0}
+            step={0.1}
+            value={seconds}
+            onValueChange={setSeconds}
+            minimumTrackTintColor="#4caf50"
+            maximumTrackTintColor="white"
+          />
+        </View>
       </View>
-      <Camera
-        style={styles.camera}
-        device={device}
-        isActive={true}
-        frameProcessor={frameProcessor}
-        pixelFormat={pixelFormat}
-        outputOrientation="device"
-      />
+
       <View style={styles.iconButtonContainer}>
         <TouchableOpacity onPress={() => setCorrectLetters([])} style={styles.iconButton}>
-          <FontAwesome6 name="eraser" size={iconSize} color="white" />
-          <Text style={[styles.iconButtonText, { fontSize }]}>Clear Word</Text>
+          <FontAwesome6 name="eraser" size={24} color="white" />
+          <Text style={[styles.iconButtonText]}>{t('clearWord')}</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => setCameraType(cameraType === 'front' ? 'back' : 'front')} style={styles.iconButton}>
-          <FontAwesome6 name="repeat" size={iconSize} color="white" />
-          <Text style={[styles.iconButtonText, { fontSize }]}>Switch Camera</Text>
+          <FontAwesome6 name="repeat" size={24} color="white" />
+          <Text style={[styles.iconButtonText]}>{t('switchCamera')}</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -249,6 +269,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 20,
   },
+  camera: {
+    flex: 2
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    paddingTop: 20,
+  },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
@@ -256,12 +285,16 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 18,
-    color: '#666',
-    marginBottom: 20,
+    color: 'limegreen',
+    fontWeight: 'bold',
+    marginBottom: 10,
   },
   wordContainer: {
     flexDirection: 'row',
     marginBottom: 20,
+    backgroundColor: 'white',
+    padding: 10,
+    borderRadius: 10,
   },
   scoreContainer: {
     flexDirection: 'row',
@@ -278,9 +311,6 @@ const styles = StyleSheet.create({
   correctLetter: {
     color: 'green',
   },
-  camera: {
-    flex: 2,
-  },
   iconButtonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -294,6 +324,7 @@ const styles = StyleSheet.create({
   },
   iconButtonText: {
     color: 'white',
+    fontSize: 10,
     textAlign: 'center',
   },
   button: {
@@ -306,5 +337,33 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  detectedLetterContainer: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'flex-end',
+    alignItems: 'flex-start',
+    paddingBottom: screenWidth / 3,
+    paddingLeft: screenWidth / 10,
+  },
+  detectedLetter: {
+    fontSize: 48,
+    color: 'aqua',
+    fontWeight: 'bold',
+  },
+  sliderContainer: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    paddingBottom: screenWidth / 5,
+  },
+  sliderLabel: {
+    fontSize: 16,
+    color: 'white',
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  slider: {
+    width: '100%',
+    height: 40,
   },
 });

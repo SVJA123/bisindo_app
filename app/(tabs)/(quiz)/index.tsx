@@ -16,7 +16,8 @@ const loadHighScore = async (categoryID: string): Promise<number> => {
   return score ? parseInt(score) : 0;
 }
 
-const icons: { [key: string]: 'pets' | 'place' | 'chat' | 'format-list-numbered' | 'palette' | 'quiz' } = {
+const icons: { [key: string]: 'abc' | 'pets' | 'place' | 'chat' | 'format-list-numbered' | 'palette' | 'quiz' } = {
+  letters: 'abc',
   animals: 'pets',
   places: 'place',
   greetings: 'chat',
@@ -36,9 +37,13 @@ export default function QuizScreen() {
   // - items: an array of items in the category'
   // - icon: the name of the icon to use for the category
   // Each new category needs to be defined in the translation files except for the icons which is above
-
-
   const categories = [
+    {
+      id: 0,
+      name: t('categories.letters.name'),
+      items: t('categories.letters.items', { returnObjects: true }),
+      icon: icons.animals,
+    },
     {
       id: 1,
       name: t('categories.animals.name'),
@@ -108,8 +113,8 @@ export default function QuizScreen() {
           <Link
             key={category.id}
             href={{
-              pathname: '/category', // Navigate to the CategoryScreen
-              params: { categoryId: category.id, categoryName: category.name, items: JSON.stringify(category.items) }, // Pass category data as params
+              pathname: '/category', 
+              params: { categoryId: category.id, categoryName: category.name, items: JSON.stringify(category.items) }, 
             }}
             asChild
           >

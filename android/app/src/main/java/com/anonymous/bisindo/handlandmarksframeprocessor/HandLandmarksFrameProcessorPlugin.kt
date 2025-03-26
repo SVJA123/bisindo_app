@@ -20,18 +20,14 @@ class HandLandmarksFrameProcessorPlugin(proxy: VisionCameraProxy, options: Map<S
       return "HandLandmarker is not initialized" // Return early if initialization failed
     }
 
-    try {
-      // Convert the frame to an MPImage
-      // val mpImage: MPImage = BitmapImageBuilder(frame.imageProxy.toBitmap()).build()
-      
-      // Get the timestamp from the frame
+    try {      
       val timestamp = frame.timestamp ?: System.currentTimeMillis()
 
       val orientation = arguments?.get("orientation") as? String ?: "portrait"
 
       val bitmap = frame.imageProxy.toBitmap()
 
-      // Rotate the Bitmap based on the frame orientation
+      //rotating bitmap based on frame orientation
       val rotatedBitmap = when (orientation) {
         "landscape-right" -> rotateBitmap(bitmap, 90f)
         "portrait-upside-down" -> rotateBitmap(bitmap, 180f)
@@ -39,12 +35,9 @@ class HandLandmarksFrameProcessorPlugin(proxy: VisionCameraProxy, options: Map<S
         else -> bitmap // No rotation needed
       }
 
-      // Convert the rotated Bitmap to an MPImage
       val mpImage: MPImage = BitmapImageBuilder(rotatedBitmap).build()
 
-      // Call detectAsync with MPImage and timestamp
       HandLandmarkerHolder.handLandmarker?.detectAsync(mpImage, timestamp)
-      
       Log.d("HandLandmarksFrameProcessor", "Frame processed successfully") // Add logging
       return "Frame processed successfully"
     } catch (e: Exception) {

@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Dimensions, NativeEventEmitter, NativeModules, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Dimensions, NativeEventEmitter, NativeModules, Platform, StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
 import { runOnJS } from 'react-native-reanimated';
 import { useSharedValue } from 'react-native-reanimated'
 import { FontAwesome6 } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import * as Speech from 'expo-speech';
-
+import Slider from '@react-native-community/slider';
 import {
   Camera,
   useCameraDevice,
@@ -15,7 +15,6 @@ import {
   Frame,
   useFrameProcessor
 } from 'react-native-vision-camera';
-
 
 const { HandLandmarks, TFLiteModule } = NativeModules;
 
@@ -37,6 +36,8 @@ function handLandmarks(frame: Frame) {
   return handLandMarkPlugin.call(frame, args);
 }
 
+// const screenWidth = Dimensions.get('window').width;
+
 export default function CameraScreen() {
   const { t } = useTranslation();
   const landmarks = useSharedValue<Number[]>([]);
@@ -47,16 +48,17 @@ export default function CameraScreen() {
   const [consecutiveLetterCount, setConsecutiveLetterCount] = useState<number>(0);
   const [consecutiveSpaceCount, setConsecutiveSpaceCount] = useState<number>(0);
   const [didModelRun, setDidModelRun] = useState<number>(0);
-  const minConsecutiveCount = 7; // minimum number of frames to consider a letter (1.5s)
+  const [seconds, setSeconds] = useState<number>(0.7);
+  const [minConsecutiveCount, setMinConsecutiveCount] = useState<number>(7); // minimum number of frames to consider a letter (1.5s)
   type CameraType = 'front' | 'back';
   const [cameraType, setCameraType] = useState<CameraType>('front');
   const device = useCameraDevice(cameraType);
   const { hasPermission, requestPermission } = useCameraPermission();
+
   HandLandmarks.initModel();
 
-  const screenWidth = Dimensions.get('window').width;
-  const iconSize = screenWidth / 16; 
-  const fontSize = screenWidth / 36; 
+  // const iconSize = screenWidth / 16; 
+  // const fontSize = screenWidth / 36; 
 
   const handleSpeak = () => {
       console.log("sentence", sentences.join());
@@ -108,7 +110,7 @@ export default function CameraScreen() {
   }, []);
 
   useEffect(() => {
-    // Update the current word and sentences
+    // update the current word and sentences
     // console.log("detectedLetter: ", detectedLetter);
     // console.log("word: ", currentWord);
     // console.log("sentences: ", sentences);
@@ -141,7 +143,10 @@ export default function CameraScreen() {
     setLastDetectedLetter(detectedLetter);
   }, [didModelRun]);
 
-  
+  useEffect(() => {
+    setMinConsecutiveCount(Math.round(seconds * 10));
+  }
+, [seconds]);
 
   useEffect(() => {
     requestPermission().catch(error => console.log(error));
@@ -150,15 +155,11 @@ export default function CameraScreen() {
 
   const frameProcessor = useFrameProcessor(frame => {
     'worklet';
-
-    // console.log("frame orientation: ", frame.orientation);
-
+    
     // so that the result is not too flickery
     runAtTargetFps(10, () => {
       handLandmarks(frame)
     })
-    
-    
   }, []);
 
   if (!hasPermission) {
@@ -173,11 +174,6 @@ export default function CameraScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.topContainer}>
-        <Text style={styles.letterText}>{detectedLetter}</Text>
-        <Text style={styles.wordText}>{currentWord}</Text>
-        <Text style={styles.sentenceText}>{sentences.join(' ')}</Text>
-      </View>
       <Camera
         style={styles.camera}
         device={device}
@@ -186,22 +182,44 @@ export default function CameraScreen() {
         pixelFormat={pixelFormat}
         outputOrientation="device"
       />
+      <View style={styles.overlay}>
+        <View style={styles.textContainer}>
+          <Text style={styles.letterText}>{detectedLetter}</Text>
+          <Text style={styles.wordText}>{currentWord}</Text>
+          <Text style={styles.sentenceText}>{sentences.join(' ')}</Text>
+        </View>
+
+        <View style={styles.sliderContainer}>
+          <Text style={styles.sliderLabel}>{t('seconds')}: {seconds.toFixed(1)}</Text>
+          <Slider
+            style={styles.slider}
+            minimumValue={0.5}
+            maximumValue={3.0}
+            step={0.1}
+            value={seconds}
+            onValueChange={setSeconds}
+            minimumTrackTintColor="#4caf50"
+            maximumTrackTintColor="white"
+          />
+        </View>
+      </View>
+
       <View style={styles.iconButtonContainer}>
-        <TouchableOpacity onPress={() => setCurrentWord('')} style={styles.iconButton}>
-          <FontAwesome6 name="eraser" size={iconSize} color="white" />
-          <Text style={[styles.iconButtonText, { fontSize }]}>{t('clearWord')}</Text>
+        <TouchableOpacity onPress={() => setCurrentWord(currentWord.slice(0, -1))} style={styles.iconButton}>
+          <FontAwesome6 name="eraser" size={24} color="white" />
+          <Text style={[styles.iconButtonText]}>{t('deleteLetter')}</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => setSentences([])} style={styles.iconButton}>
-          <FontAwesome6 name="trash" size={iconSize} color="white" />
-          <Text style={[styles.iconButtonText, { fontSize }]}>{t('clearSentence')}</Text>
+        <TouchableOpacity onPress={() => setSentences(sentences.slice(0, -1))} style={styles.iconButton}>
+          <FontAwesome6 name="trash" size={24} color="white" />
+          <Text style={[styles.iconButtonText]}>{t('deleteWord')}</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={handleSpeak} style={styles.iconButton}>
-          <FontAwesome6 name="volume-high" size={iconSize} color="white" />
-          <Text style={[styles.iconButtonText, { fontSize }]}>{t('tts')}</Text>
+          <FontAwesome6 name="volume-high" size={24} color="white" />
+          <Text style={[styles.iconButtonText]}>{t('tts')}</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => setCameraType(cameraType === 'front' ? 'back' : 'front')} style={styles.iconButton}>
-          <FontAwesome6 name="repeat" size={iconSize} color="white" />
-          <Text style={[styles.iconButtonText, { fontSize }]}>{t('switchCamera')}</Text>
+          <FontAwesome6 name="repeat" size={24} color="white" />
+          <Text style={[styles.iconButtonText]}>{t('switchCamera')}</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -216,6 +234,18 @@ const styles = StyleSheet.create({
   topContainer: {
     flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    paddingTop: 20,
+  },
+  textContainer: {
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    padding: 10,
+    borderRadius: 10,
     alignItems: 'center',
   },
   letterText: {
@@ -251,5 +281,21 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 10,
     textAlign: 'center',
+  },
+  sliderContainer: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    paddingBottom: 70,
+  },
+  sliderLabel: {
+    fontSize: 16,
+    color: 'white',
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  slider: {
+    width: '100%',
+    height: 40,
   },
 });

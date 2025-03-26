@@ -5,21 +5,20 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import en from '@/locales/en.json';
 import id from '@/locales/id.json';
 
-// Function to load the saved language
+// function to load the saved language
 const loadLanguage = async () => {
   const savedLanguage = await AsyncStorage.getItem('language');
-  return savedLanguage || 'en'; // Default to English if no language is saved
+  return savedLanguage || 'en'; // default to english
 };
 
-// Initialize i18next
 loadLanguage().then((lng) => {
   i18n.use(initReactI18next).init({
     resources: {
       en: { translation: en },
       id: { translation: id },
     },
-    lng: lng, // Use the saved language
-    fallbackLng: 'en', // Fallback language 
+    lng: lng, // use the saved language
+    fallbackLng: 'en', // language deafult
     interpolation: {
       escapeValue: false, 
     },

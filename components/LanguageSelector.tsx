@@ -17,7 +17,7 @@ const LanguageSelector = () => {
   };
 
   // flags
-  const flag = currentLanguage === 'en' ? '🇺🇸' : '🇮🇩';
+  const flag = currentLanguage === 'en' ? '🇬🇧' : '🇮🇩';
 
   return (
     <TouchableOpacity onPress={toggleLanguage} style={styles.button}>

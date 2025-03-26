@@ -56,12 +56,8 @@ class HandLandmarks(reactContext: ReactApplicationContext) : ReactContextBaseJav
                 }
             }
 
-            // val orientation = "landscape-left"
-            val orientation = "portrait"
-            val transformedLandmarks = transformLandmarksToPortrait(landmarks, orientation)
-
             val landmarksArray = Arguments.createArray()
-            transformedLandmarks.forEach { landmarksArray.pushDouble(it.toDouble()) }
+            landmarks.forEach { landmarksArray.pushDouble(it.toDouble()) }
 
             val params = Arguments.createMap()
             params.putArray("landmarks", landmarksArray)
@@ -97,79 +93,5 @@ class HandLandmarks(reactContext: ReactApplicationContext) : ReactContextBaseJav
             errorParams.putString("error", e.message)
             sendEvent("onHandLandmarksError", errorParams)
         }
-    }
-    
-    // could be removed later probably
-    private fun transformLandmarksToPortrait(landmarks: FloatArray, orientation: String): FloatArray {
-        return when (orientation) {
-            "portrait" -> landmarks // No transformation needed
-            "landscape-left" -> rotateLandmarksCounterClockwise(landmarks)
-            "landscape-right" -> rotateLandmarksClockwise(landmarks)
-            "portrait-upside-down" -> rotateLandmarks180(landmarks)
-            else -> landmarks
-        }
-    }
-
-    private fun rotateLandmarksClockwise(landmarks: FloatArray): FloatArray {
-        val transformed = FloatArray(landmarks.size)
-        for (handIndex in 0 until 2) {
-            val offset = handIndex * 42
-            if (!isHandEmpty(landmarks, offset)) {
-                for (i in 0 until 42 step 2) {
-                    transformed[offset + i] = 1 - landmarks[offset + i + 1]
-                    transformed[offset + i + 1] = landmarks[offset + i]
-                }
-            } else {
-                for (i in 0 until 42) {
-                    transformed[offset + i] = landmarks[offset + i]
-                }
-            }
-        }
-        return transformed
-    }
-
-    private fun rotateLandmarksCounterClockwise(landmarks: FloatArray): FloatArray {
-        val transformed = FloatArray(landmarks.size)
-        for (handIndex in 0 until 2) {
-            val offset = handIndex * 42
-            if (!isHandEmpty(landmarks, offset)) {
-                for (i in 0 until 42 step 2) {
-                    transformed[offset + i] = landmarks[offset + i + 1]
-                    transformed[offset + i + 1] = 1 - landmarks[offset + i]
-                }
-            } else {
-                for (i in 0 until 42) {
-                    transformed[offset + i] = landmarks[offset + i]
-                }
-            }
-        }
-        return transformed
-    }
-
-    private fun rotateLandmarks180(landmarks: FloatArray): FloatArray {
-        val transformed = FloatArray(landmarks.size)
-        for (handIndex in 0 until 2) {
-            val offset = handIndex * 42
-            if (!isHandEmpty(landmarks, offset)) {
-                for (i in 0 until 42 step 2) {
-                    transformed[offset + i] = 1 - landmarks[offset + i]
-                    transformed[offset + i + 1] = 1 - landmarks[offset + i + 1]
-                }
-            } else {
-                for (i in 0 until 42) {
-                    transformed[offset + i] = landmarks[offset + i]
-                }
-            }
-        }
-        return transformed
-    }
-
-    private fun isHandEmpty(landmarks: FloatArray, offset: Int): Boolean {
-        for (i in 0 until 42) {
-            if (landmarks[offset + i] != 0f) {
-                return false
-            }
-        }
-        return true
     }
 }

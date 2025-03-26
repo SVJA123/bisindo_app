@@ -6,15 +6,41 @@
     "clearWord": "Hapus Kata",
     "clearSentence": "Hapus Kalimat",
     "deleteLetter": "Hapus Huruf",
+    "deleteWord": "Hapus Kata",
     "switchCamera": "Ganti Kamera",
     "tts": "Suara",
     "quiz": "Kuis",
     "alphabet": "Alfabet",
     "placeholder": "Masukkan teks",
     "missingText": "Silakan masukkan teks",
+    "seconds": "detik",
+
+    "help": "Halaman Bantuan",
+    "helpDescription": "Fungsi ini membantu Anda menerjemahkan ejaan jari Bisindo secara real-time. Berikut adalah beberapa tips tentang cara menggunakan aplikasi ini:",
+    "helpStep1": "Arahkan kamera Anda ke tangan Anda untuk mendeteksi ejaan jari.",
+    "helpStep2": "Huruf yang terdeteksi akan ditampilkan di layar.",
+    "helpStep3": "Huruf yang terdeteksi akan ditambahkan ke kata saat ini setelah satu detik huruf terdeteksi.",
+    "helpStep4": "Kata yang terdeteksi akan ditambahkan ke kalimat saat ini setelah satu detik tidak ada huruf yang terdeteksi.",
+    "helpStep5": "Anda dapat menghapus kata atau kalimat saat ini menggunakan tombol yang disediakan.",
+    "helpStep6": "Gunakan tombol ganti kamera untuk beralih antara kamera depan dan belakang.",
+    "helpStep7": "Tekan tombol bicara untuk mendengar kalimat yang terdeteksi.",
+    "helpStep8": "Gunakan slider untuk mengatur kecepatan huruf yang terdeteksi. Misalnya, jika Anda mengatur kecepatan ke 0,5, aplikasi akan menambahkan huruf ke kata dan kata ke kalimat setiap 0,5 detik.",
+
+    "quizHelpDescription": "Fungsi ini membantu Anda berlatih ejaan jari Bisindo secara real-time. Berikut adalah beberapa tips tentang cara menggunakan fungsi kuis:",
+    "quizHelpStep1": "Arahkan kamera Anda ke tangan Anda untuk mendeteksi ejaan jari.",
+    "quizHelpStep2": "Kata yang diperlukan akan ditampilkan di layar.",
+    "quizHelpStep3": "Huruf yang terdeteksi akan disetujui sebagai bagian dari kata yang diperlukan setelah 0,5 detik huruf terdeteksi.",
+    "quizHelpStep4": "Huruf yang disetujui akan ditampilkan hijau.",
+    "quizHelpStep5": "Lengkapi kata dengan mengeja huruf-huruf lainnya.",
+    "quizHelpStep6": "Gunakan tombol ganti kamera untuk beralih antara kamera depan dan belakang.",
+    "quizHelpStep7": "Gunakan slider untuk mengatur kecepatan huruf yang terdeteksi. Misalnya, jika Anda mengatur kecepatan ke 0,5, aplikasi akan menyetujui huruf ke kata setiap 0,5 detik.",
 
     "quizCategories": "Kategori Kuis",
     "categories": {
+      "letters": {
+        "name": "Huruf",
+        "items": ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
+      },
       "animals": {
         "name": "Hewan",
         "items": ["anjing", "kucing", "burung", "sapi", "kuda", "monyet", "ular", "ikan", "gajah", "singa", "harimau", "kambing", "kelinci", "serigala", "beruang", "ayam", "bebek", "kadal"]

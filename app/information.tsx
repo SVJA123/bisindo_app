@@ -35,7 +35,6 @@ export default function InformationScreen() {
         </Text>
       </Text>
 
-      {/* Use a light status bar on iOS to account for the black space above the modal */}
       <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
     </ScrollView>
   );
@@ -44,7 +43,7 @@ export default function InformationScreen() {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    alignItems: 'center',
+    alignItems: 'flex-start', 
     justifyContent: 'center',
     padding: 20,
     backgroundColor: 'white',
@@ -52,7 +51,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    textAlign: 'center',
+    textAlign: 'left',
     marginBottom: 10,
   },
   sectionTitle: {
@@ -60,17 +59,18 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginTop: 20,
     marginBottom: 10,
-    textAlign: 'center',
+    textAlign: 'left', 
   },
   subTitle: {
     fontSize: 18,
     fontWeight: '600',
     marginTop: 15,
     marginBottom: 5,
+    textAlign: 'left', 
   },
   text: {
     fontSize: 16,
-    textAlign: 'center',
+    textAlign: 'left', 
     marginBottom: 15,
     lineHeight: 24,
   },

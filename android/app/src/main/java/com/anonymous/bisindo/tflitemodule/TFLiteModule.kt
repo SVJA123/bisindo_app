@@ -17,8 +17,8 @@ class TFLiteModule(reactContext: ReactApplicationContext) : ReactContextBaseJava
     private var interpreter: Interpreter? = null
 
     init {
-        // Load your TFLite model
-        val modelFile = loadModelFile("hand_gesture_hybrid_j.tflite")
+        // load model
+        val modelFile = loadModelFile("hand_gesture_hybrid_data_add.tflite")
         interpreter = Interpreter(modelFile)
     }
 

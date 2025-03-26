@@ -84,7 +84,7 @@ export default function IndexScreen() {
 
   const handleSpeak = () => {
     if (text.trim()) {
-      const languageCodeTTS = t('languageCodeTTS'); // e.g., 'id' or 'id-ID'
+      const languageCodeTTS = t('languageCodeTTS'); 
   
       Speech.speak(text, {
         language: languageCodeTTS, 
@@ -118,14 +118,14 @@ export default function IndexScreen() {
       </View>
 
       <View style={styles.iconContainer}>
-        {/* Microphone Button (Left) */}
-        <Pressable onPress={isListening ? handleStop : handleStart} style={styles.microphoneButton}>
-          <View style={styles.microphoneIconContainer}>
+        {/* Microphone Button*/}
+        <Pressable onPress={isListening ? handleStop : handleStart} style={styles.defButton}>
+          <View style={styles.defIconContainer}>
             <FontAwesome name={isListening ? "stop" : "microphone"} size={30} color="white" />
           </View>
         </Pressable>
 
-        {/* Camera Button (Center) */}
+        {/* Camera Button*/}
         <Link href='/camera' asChild>
           <Pressable style={styles.cameraButton}>
             <View style={styles.cameraIconContainer}>
@@ -134,9 +134,9 @@ export default function IndexScreen() {
           </Pressable>
         </Link>
 
-        {/* Speech Button (Right) */}
-        <Pressable onPress={handleSpeak} style={styles.speechButton}>
-          <View style={styles.speechIconContainer}>
+        {/* Speech Button*/}
+        <Pressable onPress={handleSpeak} style={styles.defButton}>
+          <View style={styles.defIconContainer}>
             <FontAwesome name="volume-up" size={30} color="white" />
           </View>
         </Pressable>
@@ -184,10 +184,10 @@ const styles = StyleSheet.create({
   },
   iconContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between', // Adjust spacing
+    justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: 'white',
-    paddingHorizontal: 20, // Add horizontal padding
+    paddingHorizontal: 20,
     paddingVertical: 20,
   },
   cameraButton: {
@@ -204,27 +204,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  microphoneButton: {
+  defButton: {
     alignItems: 'center',
     justifyContent: 'center',
   },
-  microphoneIconContainer: {
-    width: 60, // Smaller size
-    height: 60, // Smaller size
-    borderRadius: 30,
-    borderWidth: 2,
-    borderColor: 'royalblue',
-    backgroundColor: 'royalblue',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  speechButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  speechIconContainer: {
-    width: 60, // Smaller size
-    height: 60, // Smaller size
+  defIconContainer: {
+    width: 60,
+    height: 60,
     borderRadius: 30,
     borderWidth: 2,
     borderColor: 'royalblue',
