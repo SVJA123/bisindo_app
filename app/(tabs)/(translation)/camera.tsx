@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Dimensions, NativeEventEmitter, NativeModules, Platform, StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
+import { Dimensions, NativeEventEmitter, NativeModules, Platform, StyleSheet, Text, TouchableOpacity, View, LogBox } from 'react-native';
 import { runOnJS } from 'react-native-reanimated';
 import { useSharedValue } from 'react-native-reanimated'
 import { FontAwesome6 } from '@expo/vector-icons';
@@ -18,7 +18,8 @@ import {
 
 const { HandLandmarks, TFLiteModule } = NativeModules;
 
-const handLandmarksEmitter = new NativeEventEmitter();
+// has to have argument for testing purposes
+const handLandmarksEmitter = new NativeEventEmitter(HandLandmarks);
 
 // initialize frame processor plugin 'handLandmarks'
 const handLandMarkPlugin = VisionCameraProxy.initFrameProcessorPlugin(
@@ -61,7 +62,7 @@ export default function CameraScreen() {
   // const fontSize = screenWidth / 36; 
 
   const handleSpeak = () => {
-      console.log("sentence", sentences.join());
+      // console.log("sentence", sentences.join());
       if (sentences.join().trim()) {
         const languageCodeTTS = t('languageCodeTTS'); 
     
@@ -175,6 +176,7 @@ export default function CameraScreen() {
   return (
     <View style={styles.container}>
       <Camera
+        testID="camera"
         style={styles.camera}
         device={device}
         isActive={true}
@@ -184,14 +186,15 @@ export default function CameraScreen() {
       />
       <View style={styles.overlay}>
         <View style={styles.textContainer}>
-          <Text style={styles.letterText}>{detectedLetter}</Text>
-          <Text style={styles.wordText}>{currentWord}</Text>
-          <Text style={styles.sentenceText}>{sentences.join(' ')}</Text>
+          <Text testID="detected-letter" style={styles.letterText}>{detectedLetter}</Text>
+          <Text testID="current-word" style={styles.wordText}>{currentWord}</Text>
+          <Text testID="sentences" style={styles.sentenceText}>{sentences.join(' ')}</Text>
         </View>
 
         <View style={styles.sliderContainer}>
-          <Text style={styles.sliderLabel}>{t('seconds')}: {seconds.toFixed(1)}</Text>
+          <Text testID="slider-label" style={styles.sliderLabel}>{t('seconds')}: {seconds.toFixed(1)}</Text>
           <Slider
+            testID="slider"
             style={styles.slider}
             minimumValue={0.5}
             maximumValue={3.0}
@@ -205,19 +208,19 @@ export default function CameraScreen() {
       </View>
 
       <View style={styles.iconButtonContainer}>
-        <TouchableOpacity onPress={() => setCurrentWord(currentWord.slice(0, -1))} style={styles.iconButton}>
+        <TouchableOpacity testID="delete-letter-button" onPress={() => setCurrentWord(currentWord.slice(0, -1))} style={styles.iconButton}>
           <FontAwesome6 name="eraser" size={24} color="white" />
           <Text style={[styles.iconButtonText]}>{t('deleteLetter')}</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => setSentences(sentences.slice(0, -1))} style={styles.iconButton}>
+        <TouchableOpacity testID="delete-word-button" onPress={() => setSentences(sentences.slice(0, -1))} style={styles.iconButton}>
           <FontAwesome6 name="trash" size={24} color="white" />
           <Text style={[styles.iconButtonText]}>{t('deleteWord')}</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={handleSpeak} style={styles.iconButton}>
+        <TouchableOpacity testID="tts-button" onPress={handleSpeak} style={styles.iconButton}>
           <FontAwesome6 name="volume-high" size={24} color="white" />
           <Text style={[styles.iconButtonText]}>{t('tts')}</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => setCameraType(cameraType === 'front' ? 'back' : 'front')} style={styles.iconButton}>
+        <TouchableOpacity testID="switch-camera-button" onPress={() => setCameraType(cameraType === 'front' ? 'back' : 'front')} style={styles.iconButton}>
           <FontAwesome6 name="repeat" size={24} color="white" />
           <Text style={[styles.iconButtonText]}>{t('switchCamera')}</Text>
         </TouchableOpacity>

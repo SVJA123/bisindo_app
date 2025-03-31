@@ -30,6 +30,14 @@ class HandLandmarks(reactContext: ReactApplicationContext) : ReactContextBaseJav
     }
 
     @ReactMethod
+    fun addListener(type: String?) {
+    }
+
+    @ReactMethod
+    fun removeListeners(type: Int?) {
+    }
+
+    @ReactMethod
     fun initModel() {
         // Check if the HandLandmarker has already been initialized
         if (HandLandmarkerHolder.handLandmarker != null) {

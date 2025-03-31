@@ -33,7 +33,7 @@ const updateHighScore = async (categoryID: string, score: number): Promise<void>
 }
 
 const { HandLandmarks, TFLiteModule } = NativeModules;
-const handLandmarksEmitter = new NativeEventEmitter();
+const handLandmarksEmitter = new NativeEventEmitter(HandLandmarks);
 
 // initialize frame processor plugin
 const handLandMarkPlugin = VisionCameraProxy.initFrameProcessorPlugin(
@@ -93,7 +93,7 @@ export default function CategoryScreen() {
             .then((outputLetter: string) => {
               setDetectedLetter(outputLetter);
               setDidModelRun(Math.random());
-              console.log('Output letter:', outputLetter);
+              // console.log('Output letter:', outputLetter);
             })
             .catch((error: unknown) => {
               console.error('Error running model:', error);
@@ -183,14 +183,14 @@ export default function CategoryScreen() {
           <Text style={styles.title}>Quiz Complete!</Text>
           <Text style={styles.subtitle}>Your Score: {score}%</Text>
           <Text style={styles.subtitle}>High Score: {highScore}%</Text>
-          <TouchableOpacity onPress={() => {
+          <TouchableOpacity testID="restart-quiz-button" onPress={() => {
             setCurrentIndex(0);
             setCorrectLetters([]);
             setScore(0);
           }} style={styles.button}>
             <Text style={styles.buttonText}>Restart Quiz</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.button}>
+          <TouchableOpacity testID='go-back-button' onPress={() => navigation.goBack()} style={styles.button}>
             <Text style={styles.buttonText}>Go Back</Text>
           </TouchableOpacity>
         </View>
@@ -201,6 +201,7 @@ export default function CategoryScreen() {
   return (
     <View style={styles.container}>
       <Camera
+        testID='camera'
         style={styles.camera}
         device={device}
         isActive={true}
@@ -216,6 +217,7 @@ export default function CategoryScreen() {
         <View style={styles.wordContainer}>
           {currentWord.split('').map((letter: string, index: number) => (
             <Text
+              testID={`letter-${index}`}
               key={index}
               style={[
                 styles.letter,
@@ -227,11 +229,12 @@ export default function CategoryScreen() {
           ))}
         </View>
         <View style={styles.detectedLetterContainer}>
-          <Text style={styles.detectedLetter}>{detectedLetter}</Text>
+          <Text testID='detected-letter' style={styles.detectedLetter}>{detectedLetter}</Text>
         </View>
         <View style={styles.sliderContainer}>
-          <Text style={styles.sliderLabel}>{t('seconds')}: {seconds.toFixed(1)}</Text>
+          <Text testID='slider-label' style={styles.sliderLabel}>{t('seconds')}: {seconds.toFixed(1)}</Text>
           <Slider
+            testID='slider'
             style={styles.slider}
             minimumValue={0.5}
             maximumValue={3.0}
@@ -245,11 +248,11 @@ export default function CategoryScreen() {
       </View>
 
       <View style={styles.iconButtonContainer}>
-        <TouchableOpacity onPress={() => setCorrectLetters([])} style={styles.iconButton}>
+        <TouchableOpacity testID='delete-letter-button' onPress={() => setCorrectLetters([])} style={styles.iconButton}>
           <FontAwesome6 name="eraser" size={24} color="white" />
           <Text style={[styles.iconButtonText]}>{t('clearWord')}</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => setCameraType(cameraType === 'front' ? 'back' : 'front')} style={styles.iconButton}>
+        <TouchableOpacity testID="switch-camera-button" onPress={() => setCameraType(cameraType === 'front' ? 'back' : 'front')} style={styles.iconButton}>
           <FontAwesome6 name="repeat" size={24} color="white" />
           <Text style={[styles.iconButtonText]}>{t('switchCamera')}</Text>
         </TouchableOpacity>

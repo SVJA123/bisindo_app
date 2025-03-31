@@ -82,7 +82,6 @@ export default function QuizScreen() {
     },
   ];
 
-
   const [highScores, setHighScores] = useState<{ [key: string]: number }>({});
 
   const fetchHighScores = async () => {
@@ -103,7 +102,7 @@ export default function QuizScreen() {
   });
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={styles.container} testID="quiz-container">
       <Text style={styles.title}>{t('quizCategories')}</Text>
       <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
 
@@ -124,7 +123,7 @@ export default function QuizScreen() {
                 <Text style={styles.categoryText}>{category.name}</Text>
               </View>
               <View style={styles.highScoreContainer}>
-                <View style={[styles.highScoreBar, { width: `${highScores[category.id] || 0}%` }]} />
+                <View testID="high-score-bar" style={[styles.highScoreBar, { width: `${highScores[category.id] || 0}%` }]} />
                 <Text style={styles.highScoreText}>{highScores[category.id] || 0}%</Text>
               </View>
             </Pressable>

@@ -47,6 +47,7 @@ export default function AlphabetScreen() {
               styles.gridItem,
               pressed && styles.pressedItem, 
             ]}
+            testID={`alphabet-image-${letter}`}
           >
             <View>
               <Image
@@ -65,7 +66,7 @@ export default function AlphabetScreen() {
         animationType="fade"
         onRequestClose={() => setExpandedImage(null)} 
       >
-        <View style={styles.modalOverlay}>
+        <View style={styles.modalOverlay} testID="modal-overlay">
           <Pressable
             style={styles.modalContent}
             onPress={() => setExpandedImage(null)} 
@@ -76,6 +77,7 @@ export default function AlphabetScreen() {
                 <Image
                   source={images[expandedImage]}
                   style={styles.expandedImage}
+                  testID="expanded-image"
                 />
               </>
             )}

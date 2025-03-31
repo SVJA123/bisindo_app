@@ -42,7 +42,6 @@ export default function IndexScreen() {
   const [text, setText] = useState('');
   const [translatedImages, setTranslatedImages] = useState<any[]>([]);
   const [isListening, setIsListening] = useState(false);
-  const [capturedText, setCapturedText] = useState('');
 
   useEffect(() => {
     const imageArray = text.toLowerCase().split('').map(char => images[char] || 'space');
@@ -109,9 +108,13 @@ export default function IndexScreen() {
         <ScrollView contentContainerStyle={styles.imageContainer}>
           {translatedImages.map((item, index) => (
             item === 'space' ? (
-              <View key={index} style={styles.space} />
+              <View key={index} style={styles.space} testID="space-element"/>
             ) : (
-              <Image key={index} source={item} style={styles.image} />
+              <Image key={index} 
+                source={item}
+                style={styles.image}
+                testID={`translated-image-${index}`}
+                />
             )
           ))}
         </ScrollView>
@@ -119,15 +122,15 @@ export default function IndexScreen() {
 
       <View style={styles.iconContainer}>
         {/* Microphone Button*/}
-        <Pressable onPress={isListening ? handleStop : handleStart} style={styles.defButton}>
+        <Pressable onPress={isListening ? handleStop : handleStart} style={styles.defButton} testID="microphone-button">
           <View style={styles.defIconContainer}>
             <FontAwesome name={isListening ? "stop" : "microphone"} size={30} color="white" />
           </View>
         </Pressable>
 
         {/* Camera Button*/}
-        <Link href='/camera' asChild>
-          <Pressable style={styles.cameraButton}>
+        <Link href='/camera' asChild testID="camera-link">
+          <Pressable style={styles.cameraButton} testID="camera-button">
             <View style={styles.cameraIconContainer}>
               <FontAwesome name="camera" size={40} color="white" />
             </View>
@@ -135,13 +138,12 @@ export default function IndexScreen() {
         </Link>
 
         {/* Speech Button*/}
-        <Pressable onPress={handleSpeak} style={styles.defButton}>
+        <Pressable onPress={handleSpeak} style={styles.defButton} testID="speak-button">
           <View style={styles.defIconContainer}>
             <FontAwesome name="volume-up" size={30} color="white" />
           </View>
         </Pressable>
       </View>
-      {capturedText ? <Text style={styles.capturedText}>{capturedText}</Text> : null}
     </View>
   );
 }

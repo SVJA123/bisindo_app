@@ -8,19 +8,36 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "test": "jest --watchAll"
+    "test": "jest"
   },
   "jest": {
-    "preset": "jest-expo"
+    "preset": "jest-expo",
+    "setupFilesAfterEnv": ["<rootDir>/__tests__/jest.setup.tsx"],
+    "transformIgnorePatterns": [
+    "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@sentry/react-native|native-base|react-native-svg)"
+    ],
+    "collectCoverage": false,
+    "collectCoverageFrom": [
+    "app/**/*.{js,jsx,ts,tsx}",
+    "!**/node_modules/**",
+    "!**/coverage/**",
+    "!**/+html.tsx",
+    "!**/+not-found.tsx",
+    "!**/_layout.tsx",
+    "!**/jest.setup.tsx"
+  ],
+  "coverageDirectory": "coverage"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.2",
     "@mediapipe/camera_utils": "^0.3.1675466862",
     "@mediapipe/hands": "^0.4.1675469240",
     "@react-native-async-storage/async-storage": "^2.1.1",
+    "@react-native-community/slider": "4.5.5",
     "@react-native-voice/voice": "^3.2.4",
     "@react-navigation/native": "^7.0.14",
     "@shopify/react-native-skia": "^1.11.8",
+    "@types/jest": "^29.5.14",
     "expo": "~52.0.37",
     "expo-av": "^15.0.2",
     "expo-file-system": "~18.0.11",
@@ -38,6 +55,8 @@
     "expo-system-ui": "~4.0.8",
     "expo-web-browser": "~14.0.2",
     "i18next": "^24.2.2",
+    "jest": "~29.7.0",
+    "jest-expo": "~52.0.6",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-i18next": "^15.4.1",
@@ -50,13 +69,12 @@
     "react-native-web": "~0.19.13",
     "react-native-worklets-core": "^1.5.0",
     "react-speech-recognition": "^3.10.0",
-    "regenerator-runtime": "^0.14.1",
-    "@react-native-community/slider": "4.5.5"
+    "regenerator-runtime": "^0.14.1"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@testing-library/jest-native": "^5.4.3",
-    "@testing-library/react-native": "^13.1.0",
+    "@testing-library/react-native": "^13.2.0",
     "@types/react": "~18.3.12",
     "@types/react-native": "^0.73.0",
     "@types/react-speech-recognition": "^3.9.6",

@@ -6,7 +6,7 @@ const CamerahelpScreen = () => {
   const { t } = useTranslation();
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={styles.container} testID="scroll-view">
       <Text style={styles.title}>{t('help')}</Text>
       <Text style={styles.text}>{t('helpDescription')}</Text>
       <Text style={styles.text}>1. {t('helpStep1')}</Text>

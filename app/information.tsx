@@ -35,7 +35,7 @@ export default function InformationScreen() {
         </Text>
       </Text>
 
-      <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
+      {/* <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} /> */}
     </ScrollView>
   );
 }
