@@ -41,8 +41,6 @@ const handLandMarkPlugin = VisionCameraProxy.initFrameProcessorPlugin(
   {},
 );
 
-const screenWidth = Dimensions.get('window').width;
-
 // call the plugin function
 function handLandmarks(frame: Frame) {
   'worklet';
@@ -347,8 +345,8 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'flex-end',
     alignItems: 'flex-start',
-    paddingBottom: screenWidth / 3,
-    paddingLeft: screenWidth / 10,
+    paddingBottom: 120,
+    paddingLeft: 30,
   },
   detectedLetter: {
     fontSize: 48,
@@ -359,7 +357,7 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     justifyContent: 'flex-end',
     alignItems: 'center',
-    paddingBottom: screenWidth / 5,
+    paddingBottom: 70,
   },
   sliderLabel: {
     fontSize: 16,

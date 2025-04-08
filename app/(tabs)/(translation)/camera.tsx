@@ -59,9 +59,6 @@ export default function CameraScreen() {
 
   HandLandmarks.initModel();
 
-  // const iconSize = screenWidth / 16; 
-  // const fontSize = screenWidth / 36; 
-
   const handleSpeak = () => {
       // console.log("sentence", sentences.join());
       if (sentences.join().trim()) {
