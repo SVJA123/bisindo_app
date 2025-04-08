@@ -2,6 +2,7 @@ import React from 'react';
 import { Text, StyleSheet, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
+// page to show the help for the camera
 const CamerahelpScreen = () => {
   const { t } = useTranslation();
 

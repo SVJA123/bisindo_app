@@ -32,6 +32,7 @@ const images: { [key: string]: any } = {
   'z': require('../../assets/images/bisindo/z.jpg'),
 }
 
+// page to show the alphabet in sign language
 export default function AlphabetScreen() {
   const [expandedImage, setExpandedImage] = useState<string | null>(null); 
   const screenWidth = Dimensions.get('window').width;

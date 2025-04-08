@@ -18,7 +18,7 @@ loadLanguage().then((lng) => {
       id: { translation: id },
     },
     lng: lng, // use the saved language
-    fallbackLng: 'en', // language deafult
+    fallbackLng: 'en',
     interpolation: {
       escapeValue: false, 
     },

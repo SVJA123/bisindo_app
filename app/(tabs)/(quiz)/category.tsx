@@ -53,6 +53,7 @@ function handLandmarks(frame: Frame) {
   return handLandMarkPlugin.call(frame, args);
 }
 
+// page to show the category screen where the quiz will be held
 export default function CategoryScreen() {
   const { categoryId, categoryName, items } = useLocalSearchParams();
   const categoryIdString = categoryId.toString();
@@ -129,6 +130,7 @@ export default function CategoryScreen() {
       return;
     }
 
+    // letter detection logic
     const currentWord = itemsArray[currentIndex].toUpperCase();
 
     if (correctLetters.length < currentWord.length && currentWord[correctLetters.length] === ' ') {

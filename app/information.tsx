@@ -3,8 +3,9 @@ import { Platform, StyleSheet, ScrollView, Linking } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { useTranslation } from 'react-i18next';
 
+// page to show information about the app
 export default function InformationScreen() {
-  const { t } = useTranslation(); // Use the useTranslate hook
+  const { t } = useTranslation(); 
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -34,8 +35,6 @@ export default function InformationScreen() {
           {t('email')}
         </Text>
       </Text>
-
-      {/* <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} /> */}
     </ScrollView>
   );
 }

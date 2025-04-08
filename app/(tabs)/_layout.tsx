@@ -9,7 +9,7 @@ import LanguageSelector from '@/components/LanguageSelector';
 import { useTranslation } from 'react-i18next';
 
 
-// You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
+// for tab bar navigation
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>['name'];
   color: string;

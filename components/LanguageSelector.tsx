@@ -3,17 +3,15 @@ import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// page to change the language of the app (flag icon)
 const LanguageSelector = () => {
   const { i18n } = useTranslation();
-
-  // Get the current language
   const currentLanguage = i18n.language;
 
-  // Toggle between English and Indonesian
   const toggleLanguage = async () => {
     const newLanguage = currentLanguage === 'en' ? 'id' : 'en';
-    await i18n.changeLanguage(newLanguage); // Change the language
-    await AsyncStorage.setItem('language', newLanguage); // Save the new language
+    await i18n.changeLanguage(newLanguage);
+    await AsyncStorage.setItem('language', newLanguage);
   };
 
   // flags

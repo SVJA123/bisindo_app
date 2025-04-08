@@ -26,6 +26,8 @@ const icons: { [key: string]: 'abc' | 'pets' | 'place' | 'chat' | 'format-list-n
   test: 'quiz'
 };
 
+// page to show the quiz categories
+// this page will show the categories and the high score of each category
 export default function QuizScreen() {
   const { t } = useTranslation();
 
@@ -36,7 +38,7 @@ export default function QuizScreen() {
   // - name: the name of the category
   // - items: an array of items in the category'
   // - icon: the name of the icon to use for the category
-  // Each new category needs to be defined in the translation files except for the icons which is above
+  // Each new category needs to be defined in the translation files (en.json, id.json) except for the icons which is above
   const categories = [
     {
       id: 0,
@@ -74,12 +76,6 @@ export default function QuizScreen() {
       items: t('categories.colors.items', { returnObjects: true }),
       icon: icons.colors,
     },
-    {
-      id: 6,
-      name: t('categories.test.name'),
-      items: t('categories.test.items', { returnObjects: true }),
-      icon: icons.test,
-    },
   ];
 
   const [highScores, setHighScores] = useState<{ [key: string]: number }>({});
@@ -106,7 +102,6 @@ export default function QuizScreen() {
       <Text style={styles.title}>{t('quizCategories')}</Text>
       <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
 
-      {/* Category Containers */}
       <View style={styles.categoriesContainer}>
         {categories.map((category) => (
           <Link
@@ -186,7 +181,7 @@ const styles = StyleSheet.create({
   },
   highScoreBar: {
     height: '100%',
-    backgroundColor: '#4caf50', // Green color for the high score bar
+    backgroundColor: '#4caf50', 
     borderRadius: 10,
   },
   highScoreText: {

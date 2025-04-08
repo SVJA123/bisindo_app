@@ -37,8 +37,9 @@ function handLandmarks(frame: Frame) {
   return handLandMarkPlugin.call(frame, args);
 }
 
-// const screenWidth = Dimensions.get('window').width;
-
+// page to show the camera screen
+// this page is used to detect hand landmarks and run the model to get the letter
+// and also show the current word and sentences
 export default function CameraScreen() {
   const { t } = useTranslation();
   const landmarks = useSharedValue<Number[]>([]);
@@ -157,7 +158,7 @@ export default function CameraScreen() {
   const frameProcessor = useFrameProcessor(frame => {
     'worklet';
     
-    // so that the result is not too flickery
+    // so that the result is not too flickery (runs at 10 fps)
     runAtTargetFps(10, () => {
       handLandmarks(frame)
     })

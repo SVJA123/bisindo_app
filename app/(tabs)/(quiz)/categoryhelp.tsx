@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { useTranslation } from 'react-i18next';
 
+// page to show the help for the quiz
 const CategoryhelpScreen = () => {
   const { t } = useTranslation();
 

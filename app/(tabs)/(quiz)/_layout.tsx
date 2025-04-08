@@ -7,6 +7,7 @@ import { Pressable } from 'react-native';
 import FontAwesome6 from '@expo/vector-icons/build/FontAwesome6';
 import { useTranslation } from 'react-i18next';
 
+// just to add category help screen on this tab
 export default function QuizLayout() {
   const colorScheme = useColorScheme();
   const { t } = useTranslation();

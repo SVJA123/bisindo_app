@@ -6,8 +6,6 @@ import { Link } from 'expo-router';
 import { FontAwesome } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 
-
-
 const images: { [key: string]: any } = {
   'a': require('../../../assets/images/bisindo/a.jpg'),
   'b': require('../../../assets/images/bisindo/b.jpg'),
@@ -36,6 +34,8 @@ const images: { [key: string]: any } = {
   'y': require('../../../assets/images/bisindo/y.jpg'),
   'z': require('../../../assets/images/bisindo/z.jpg'),
 };
+
+// page to show the translation of text to sign language
 
 export default function IndexScreen() {
   const { t } = useTranslation();
@@ -66,7 +66,7 @@ export default function IndexScreen() {
 
     const languageSpeech = t('languageCodeSpeech');
 
-    // Start speech recognition
+    // speech to text
     SpeechRecognition.ExpoSpeechRecognitionModule.start({
       lang: languageSpeech,
       interimResults: true,
@@ -121,14 +121,14 @@ export default function IndexScreen() {
       </View>
 
       <View style={styles.iconContainer}>
-        {/* Microphone Button*/}
+        {/* microphone button*/}
         <Pressable onPress={isListening ? handleStop : handleStart} style={styles.defButton} testID="microphone-button">
           <View style={styles.defIconContainer}>
             <FontAwesome name={isListening ? "stop" : "microphone"} size={30} color="white" />
           </View>
         </Pressable>
 
-        {/* Camera Button*/}
+        {/* camera button*/}
         <Link href='/camera' asChild testID="camera-link">
           <Pressable style={styles.cameraButton} testID="camera-button">
             <View style={styles.cameraIconContainer}>
@@ -137,7 +137,7 @@ export default function IndexScreen() {
           </Pressable>
         </Link>
 
-        {/* Speech Button*/}
+        {/* speech button*/}
         <Pressable onPress={handleSpeak} style={styles.defButton} testID="speak-button">
           <View style={styles.defIconContainer}>
             <FontAwesome name="volume-up" size={30} color="white" />

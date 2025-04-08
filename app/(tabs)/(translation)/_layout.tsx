@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { Pressable } from 'react-native';
 import FontAwesome6 from '@expo/vector-icons/build/FontAwesome6';
 
+// just to add camera help screen on this tab
 export default function TranslationLayout() {
   const colorScheme = useColorScheme();
   const { t } = useTranslation();
