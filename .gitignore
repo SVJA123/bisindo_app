@@ -53,3 +53,5 @@ yarn-error.*
 
 # property files
 *.properties
+
+*.apk
