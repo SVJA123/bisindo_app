@@ -1,3 +1,5 @@
+// this package was done following a guide from this link: https://medium.com/@dev-john-nguyen/integrating-mediapipe-hand-detection-in-react-native-f57c46aaab3a
+
 package com.anonymous.bisindo
 
 import com.facebook.react.ReactPackage
